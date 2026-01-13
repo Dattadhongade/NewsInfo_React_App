@@ -1,4 +1,4 @@
-import React, { Component, useState } from "react";
+import React, { useState } from "react";
 import Header from "./components/Header";
 import Allnews from "./components/Allnews";
 import PropTypes from "prop-types";
@@ -17,7 +17,13 @@ const App = (props) => {
 
   return (
     <div>
-      <LoadingBar color="#f11946" progress={progress} height={3} />
+      <LoadingBar
+        color="#f11946"
+        height={3}
+        progress={progress}
+        onLoaderFinished={() => setProgress(0)} 
+      />
+
       <Header />
       <Routes>
         <Route

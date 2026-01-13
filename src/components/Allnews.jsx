@@ -21,7 +21,7 @@ const Allnews = (props) => {
   // Fetch news
   const fetchNews = async () => {
     try {
-      props.setProgress(10);
+      props.setProgress(30);
 
       let url = `https://newsapi.org/v2/top-headlines?pageSize=${props.pageSize}&page=${page}&category=${props.category}&apiKey=${props.API_KEY}`;
 
@@ -30,10 +30,9 @@ const Allnews = (props) => {
 
       setLoading(true);
       const response = await fetch(url);
-      props.setProgress(40);
 
       const parsedData = await response.json();
-      props.setProgress(80);
+      props.setProgress(100);
 
       if (!parsedData.articles || parsedData.articles.length === 0) {
         setHasMore(false);
@@ -59,7 +58,7 @@ const Allnews = (props) => {
 
       setArticles((prevArticles) => {
         const updated = [...prevArticles, ...cleanedArticles];
-        setHasMore(updated.length < parsedData.totalResults);
+        setHasMore(cleanedArticles.length > 0);
         return updated;
       });
 

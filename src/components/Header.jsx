@@ -1,10 +1,10 @@
-import React, { Component } from "react";
+import React from "react";
 import { Link, NavLink } from "react-router-dom";
 
 const Header = () => {
   return (
     <div>
-      <nav className="navbar position-fixed  navbar-expand-lg navbar-dark bg-dark z">
+      <nav className="navbar fixed-top navbar-expand-lg navbar-dark bg-dark z">
         <div className="container-fluid">
           <NavLink className="navbar-brand" to="/">
             Navbar
