@@ -1,144 +1,126 @@
-import React, { Component } from "react";
+import React, { useEffect, useState } from "react";
 import NewsItem from "./NewsItem";
 import Spiner from "./Spiner";
 import InfiniteScroll from "react-infinite-scroll-component";
 
+const Allnews = (props) => {
+  const [articles, setArticles] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
 
-
-export class Allnews extends Component {
-  capitalFirstLatter = (string) =>
+  // Capitalize category
+  const capitalFirstLatter = (string) =>
     string.charAt(0).toUpperCase() + string.slice(1);
 
-  constructor(props) {
-    super(props);
-    this.state = {
-      articles: [],
-      loading: false,
-      page: 1,
-      totalResults: 0,
-      hasMore: true,
-    };
+  // Set document title once
+  useEffect(() => {
+    document.title = `NewsInfo - ${capitalFirstLatter(props.category)}`;
+  }, [props.category]);
 
-    document.title = `NewsInfo - ${this.capitalFirstLatter(
-      this.props.category
-    )}`;
-  }
-
-  // Fetch news used try catch to dettect errors
-  fetchNews = async () => {
+  // Fetch news
+  const fetchNews = async () => {
     try {
-      this.props.setProgress(10);
-      let url = `https://newsapi.org/v2/top-headlines?pageSize=${this.props.pageSize}&page=${this.state.page}&category=${this.props.category}&apiKey=${this.props.API_KEY}`;
+      props.setProgress(10);
 
-      // let url = `https://gnews.io/api/v4/top-headlines?category=${this.props.category}&lang=en&max=10&page=${this.state.page}&apikey=cb4bc7db839ab3bdfd58ef32e9ccdb40`;
-      // use image in place of urlToImage o use gnews api
+      let url = `https://newsapi.org/v2/top-headlines?pageSize=${props.pageSize}&page=${page}&category=${props.category}&apiKey=${props.API_KEY}`;
 
-      // Fetch data from API
-      let response = await fetch(url);
-      this.props.setProgress(30);
-      let parsedData = await response.json();
-      this.props.setProgress(80);
+      // let url = `https://gnews.io/api/v4/top-headlines?category=${props.category}&lang=en&max=10&page=${page}&apikey=cb4bc7db839ab3bdfd58ef32e9ccdb40`;
+      // use image in place of urlTourlToImage o use gnews api
 
-      // If API returns no articles, stop infinite scroll
+      setLoading(true);
+      const response = await fetch(url);
+      props.setProgress(40);
+
+      const parsedData = await response.json();
+      props.setProgress(80);
+
       if (!parsedData.articles || parsedData.articles.length === 0) {
-        this.setState({
-          loading: false,
-          hasMore: false,
-        });
+        setHasMore(false);
+        setLoading(false);
         return;
       }
 
-      // Domains that block image hotlinking showing console errors
       const blockedDomains = [
         "manilatimes.net",
         "jsonline.com",
         "usatoday.com",
       ];
 
-      // Clean image URLs
       const cleanedArticles = parsedData.articles.map((article) => {
         if (
           article.urlToImage &&
           blockedDomains.some((domain) => article.urlToImage.includes(domain))
         ) {
-          // Remove blocked image and show random image
           return { ...article, urlToImage: null };
         }
         return article;
       });
 
-      this.setState((prevState) => ({
-        articles: [...prevState.articles, ...cleanedArticles],
-        totalResults: parsedData.totalResults,
-        loading: false,
-        hasMore:
-          prevState.articles.length + cleanedArticles.length <
-          parsedData.totalResults,
-      }));
-      this.props.setProgress(100);
+      setArticles((prevArticles) => {
+        const updated = [...prevArticles, ...cleanedArticles];
+        setHasMore(updated.length < parsedData.totalResults);
+        return updated;
+      });
+
+      setLoading(false);
+      props.setProgress(100);
     } catch (error) {
       console.error("Error fetching news:", error);
-      this.setState({ loading: false, hasMore: false });
+      setLoading(false);
+      setHasMore(false);
+      props.setProgress(100);
     }
   };
 
-  componentDidMount() {
-    this.setState({ loading: true }, this.fetchNews);
-  }
+  // Initial load + page change
+  useEffect(() => {
+    fetchNews();
+  }, [page]);
 
-  fetchMoreData = () => {
-    if (this.state.loading || !this.state.hasMore) return;
-
-    this.setState(
-      (prevState) => ({
-        page: prevState.page + 1,
-        loading: true,
-      }),
-      this.fetchNews
-    );
+  // Infinite scroll trigger
+  const fetchMoreData = () => {
+    if (!hasMore) return;
+    setPage((prevPage) => prevPage + 1);
   };
 
-  render() {
-    return (
-      <>
-        <h2 className="mb-2 mt-3 text-center">
-          NewsInfo - Top{" "}
-          {this.props.category ? this.props.category.toUpperCase() : "All"}{" "}
-          Headlines
-        </h2>
+  return (
+    <>
+      <h2 className="mb-2 mt-3 text-center">
+        NewsInfo - Top {props.category?.toUpperCase()} Headlines
+      </h2>
 
-        {this.state.loading && this.state.articles.length === 0 && <Spiner />}
+      {loading && articles.length === 0 && <Spiner />}
 
-        <InfiniteScroll
-          dataLength={this.state.articles.length}
-          next={this.fetchMoreData}
-          hasMore={this.state.hasMore}
-          loader={this.state.articles.length > 0 ? <Spiner /> : null}
-          endMessage={
-            <p className="text-center mt-4">
-              <b>No more news to show</b>
-            </p>
-          }
-        >
-          <div className="container mt-4">
-            <div className="row row-cols-1 row-cols-md-3 g-4">
-              {this.state.articles.map((element, index) => (
-                <div className="col" key={index}>
-                  <NewsItem
-                    title={element.title}
-                    description={element.description}
-                    imgUrl={element.urlToImage}
-                    url={element.url}
-                    date={element.publishedAt?.slice(0, 10)}
-                  />
-                </div>
-              ))}
-            </div>
+      <InfiniteScroll
+        dataLength={articles.length}
+        next={fetchMoreData}
+        hasMore={hasMore}
+        loader={articles.length > 0 ? <Spiner /> : null}
+        endMessage={
+          <p className="text-center mt-4">
+            <b>No more news to show</b>
+          </p>
+        }
+      >
+        <div className="container mt-4">
+          <div className="row row-cols-1 row-cols-md-3 g-4">
+            {articles.map((element, index) => (
+              <div className="col" key={index}>
+                <NewsItem
+                  title={element.title}
+                  description={element.description}
+                  imgUrl={element.urlToImage}
+                  url={element.url}
+                  date={element.publishedAt?.slice(0, 10)}
+                />
+              </div>
+            ))}
           </div>
-        </InfiniteScroll>
-      </>
-    );
-  }
-}
+        </div>
+      </InfiniteScroll>
+    </>
+  );
+};
 
 export default Allnews;

@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component, useState } from "react";
 import Header from "./components/Header";
 import Allnews from "./components/Allnews";
 import PropTypes from "prop-types";
@@ -8,125 +8,117 @@ import LoadingBar, { useLoadingBar } from "react-top-loading-bar";
 
 // const API_KEY = import.meta.env.REACT_APP_NEWS_API_KEY;
 
-export class App extends Component {
-  static propTypes = {
-    country: PropTypes.string,
-    pageSize: PropTypes.number,
-    category: PropTypes.string,
-  };
+const App = (props) => {
+  const [progress, setProgress] = useState(0);
+  const [pageSize] = useState(20);
 
-  state = {
-    progress: 0,
-  };
+  // pageSize = 20;
+  const API_KEY = import.meta.env.VITE_APP_NEWS_API_KEY;
 
-  setProgress = (progress) => {
-    this.setState({ progress: progress });
-  };
+  return (
+    <div>
+      <LoadingBar color="#f11946" progress={progress} height={3} />
+      <Header />
+      <Routes>
+        <Route
+          exact
+          path="/"
+          element={
+            <Allnews
+              setProgress={setProgress}
+              API_KEY={API_KEY}
+              key="general"
+              pageSize={pageSize}
+              category="general"
+            />
+          }
+        />
+        <Route
+          exact
+          path="/sports"
+          element={
+            <Allnews
+              setProgress={setProgress}
+              API_KEY={API_KEY}
+              key="sports"
+              pageSize={pageSize}
+              category="sports"
+            />
+          }
+        />
+        <Route
+          exact
+          path="/technology"
+          element={
+            <Allnews
+              setProgress={setProgress}
+              API_KEY={API_KEY}
+              key="technology"
+              pageSize={pageSize}
+              category="technology"
+            />
+          }
+        />
+        <Route
+          exact
+          path="/science"
+          element={
+            <Allnews
+              setProgress={setProgress}
+              API_KEY={API_KEY}
+              key="science"
+              pageSize={pageSize}
+              category="science"
+            />
+          }
+        />
+        <Route
+          exact
+          path="/health"
+          element={
+            <Allnews
+              setProgress={setProgress}
+              API_KEY={API_KEY}
+              key="health"
+              pageSize={pageSize}
+              category="health"
+            />
+          }
+        />
+        <Route
+          exact
+          path="/entertainment"
+          element={
+            <Allnews
+              setProgress={setProgress}
+              API_KEY={API_KEY}
+              key="entertainment"
+              pageSize={pageSize}
+              category="entertainment"
+            />
+          }
+        />
+        <Route
+          exact
+          path="/business"
+          element={
+            <Allnews
+              setProgress={setProgress}
+              API_KEY={API_KEY}
+              key="business"
+              pageSize={pageSize}
+              category="business"
+            />
+          }
+        />
+      </Routes>
+    </div>
+  );
+};
 
-  pageSize = 20;
-  API_KEY = import.meta.env.VITE_APP_NEWS_API_KEY;
-
-  render() {
-    return (
-      <div>
-        <LoadingBar color="#f11946" progress={this.state.progress} height={3} />
-        <Header />
-        <Routes>
-          <Route
-            exact
-            path="/"
-            element={
-              <Allnews
-                setProgress={this.setProgress}
-                API_KEY={this.API_KEY}
-                key="general"
-                pageSize={this.pageSize}
-                category="general"
-              />
-            }
-          />
-          <Route
-            exact
-            path="/sports"
-            element={
-              <Allnews
-                setProgress={this.setProgress}
-                API_KEY={this.API_KEY}
-                key="sports"
-                pageSize={this.pageSize}
-                category="sports"
-              />
-            }
-          />
-          <Route
-            exact
-            path="/technology"
-            element={
-              <Allnews
-                setProgress={this.setProgress}
-                API_KEY={this.API_KEY}
-                key="technology"
-                pageSize={this.pageSize}
-                category="technology"
-              />
-            }
-          />
-          <Route
-            exact
-            path="/science"
-            element={
-              <Allnews
-                setProgress={this.setProgress}
-                API_KEY={this.API_KEY}
-                key="science"
-                pageSize={this.pageSize}
-                category="science"
-              />
-            }
-          />
-          <Route
-            exact
-            path="/health"
-            element={
-              <Allnews
-                setProgress={this.setProgress}
-                API_KEY={this.API_KEY}
-                key="health"
-                pageSize={this.pageSize}
-                category="health"
-              />
-            }
-          />
-          <Route
-            exact
-            path="/entertainment"
-            element={
-              <Allnews
-                setProgress={this.setProgress}
-                API_KEY={this.API_KEY}
-                key="entertainment"
-                pageSize={this.pageSize}
-                category="entertainment"
-              />
-            }
-          />
-          <Route
-            exact
-            path="/business"
-            element={
-              <Allnews
-                setProgress={this.setProgress}
-                API_KEY={this.API_KEY}
-                key="business"
-                pageSize={this.pageSize}
-                category="business"
-              />
-            }
-          />
-        </Routes>
-      </div>
-    );
-  }
-}
-
+App.propTypes = {
+  country: PropTypes.string,
+  pageSize: PropTypes.number,
+  category: PropTypes.string,
+};
 export default App;
